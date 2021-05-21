@@ -1,0 +1,61 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: entry-route
+  namespace: default
+spec:
+  # This is the gateway shared in knative service mesh.
+  gateways:
+    - knative-ingress-gateway.knative-serving.svc.cluster.local
+  # Set host to the domain name that you own.
+  hosts:
+    - k8s.local
+  http:
+    - match:
+        - uri:
+            prefix: "/apples"
+      rewrite:
+        # Rewrite the original host header to the host header of Search service
+        # in order to redirect requests to Search service.
+        authority: serverless-demo-serverless.default.k8s.local
+      route:
+        # Basically here we redirect the request to the cluster entry again with
+        # updated header "search-service.default.k8s.local" so the request will
+        # eventually be directed to Search service.
+        - destination:
+            host: istio-ingressgateway.istio-system.svc.cluster.local
+            port:
+              number: 80
+          weight: 100
+    - match:
+        - uri:
+            prefix: "/cats"
+      rewrite:
+        # Rewrite the original host header to the host header of Login service
+        # in order to redirect requests to Login service.
+        authority: serverless-demo-backend.default.k8s.local
+      route:
+        # Basically here we redirect the request to the cluster entry again with
+        # updated header "login-service.default.k8s.local" so the request will
+        # eventually be directed to Login service.
+        - destination:
+            host: istio-ingressgateway.istio-system.svc.cluster.local
+            port:
+              number: 80
+          weight: 100
+    - match:
+        - uri:
+            prefix: "/dogs"
+      rewrite:
+        # Rewrite the original host header to the host header of Login service
+        # in order to redirect requests to Login service.
+        authority: serverless-demo-backend.default.k8s.local
+      route:
+        # Basically here we redirect the request to the cluster entry again with
+        # updated header "login-service.default.k8s.local" so the request will
+        # eventually be directed to Login service.
+        - destination:
+            host: istio-ingressgateway.istio-system.svc.cluster.local
+            port:
+              number: 80
+          weight: 100

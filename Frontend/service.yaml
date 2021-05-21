@@ -1,0 +1,19 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: serverless-demo-frontend
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+    spec:
+      containers:
+        - image: docker.io/stiforr/serverless-demo-frontend:latest
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /
+            initialDelaySeconds: 3
